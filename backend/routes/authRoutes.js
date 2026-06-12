@@ -1,5 +1,10 @@
 const express = require("express");
 const { register, login } = require("../controller/authController");
+const {
+  validateRegister,
+  validateLogin,
+} = require("../middleware/requestValidator");
+const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -11,7 +16,16 @@ router.get("/", (req, res) => {
   });
 });
 
-router.post("/register", register);
-router.post("/login", login);
+// Protected route example
+router.get("/profile", verifyToken, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Profile retrieved",
+    user: req.user,
+  });
+});
+
+router.post("/register", validateRegister, register);
+router.post("/login", validateLogin, login);
 
 module.exports = router;

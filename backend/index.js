@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 
 const DBConnection = require("./database/db");
 const authRoutes = require("./routes/authRoutes");
+const logger = require("./middleware/logger");
+const errorHandler = require("./middleware/errorHandler");
 
 dotenv.config();
 
@@ -22,6 +24,9 @@ if (missingEnvVars.length > 0) {
 }
 
 const corsOrigin = process.env.FRONTEND_URL || true;
+
+// Request logging middleware
+app.use(logger);
 
 app.use(
   cors({
@@ -48,5 +53,8 @@ const startServer = async () => {
 };
 
 app.use("/", authRoutes);
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 startServer();

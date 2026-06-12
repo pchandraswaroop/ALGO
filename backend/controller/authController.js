@@ -20,18 +20,9 @@ const getCookieOptions = () => ({
 });
 
 //post route
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password } = req.body;
-
-    // Validate required fields
-    if (!(firstName && lastName && email && password)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Please provide all required information: firstName, lastName, email, and password",
-      });
-    }
 
     // Check if user already exists
     const normalizedEmail = normalizeEmail(email);
@@ -83,47 +74,14 @@ const register = async (req, res) => {
       token: token,
     });
   } catch (error) {
-    console.error("Registration error:", error);
-
-    // Handle validation errors
-    if (error.name === "ValidationError") {
-      const validationErrors = Object.values(error.errors).map(
-        (err) => err.message,
-      );
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: validationErrors,
-      });
-    }
-
-    // Handle duplicate key error
-    if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "User with this email already exists",
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error during registration",
-    });
+    next(error);
   }
 };
 
 //login route
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    // Validate required fields
-    if (!(email && password)) {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide both email and password",
-      });
-    }
 
     // Find user by email
     const normalizedEmail = normalizeEmail(email);
@@ -171,11 +129,7 @@ const login = async (req, res) => {
       token: token,
     });
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error during login",
-    });
+    next(error);
   }
 };
 
