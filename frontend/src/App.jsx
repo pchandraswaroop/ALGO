@@ -1,54 +1,61 @@
-import { useState, useEffect } from "react";
-import { checkServerStatus } from "./api";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
 
-function App() {
-  const [serverStatus, setServerStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const data = await checkServerStatus();
-        setServerStatus(data);
-        setError(null);
-      } catch (err) {
-        setError(err.message);
-        setServerStatus(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStatus();
-  }, []);
-
+export default function App() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8">
-      <h1 className="text-5xl font-bold">Online Judge</h1>
+    <Router>
+      <AuthProvider>
+        <div className="min-h-screen bg-slate-950 font-sans antialiased text-slate-200">
+          <Navbar />
+          <Routes>
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
 
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold mb-4">Backend Connection</h2>
+            {/* Public Routes */}
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
 
-        {loading && <p className="text-lg text-gray-600">Checking server...</p>}
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            <p>❌ Connection Failed</p>
-            <p className="text-sm">{error}</p>
-          </div>
-        )}
-
-        {serverStatus && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-            <p>✅ {serverStatus.message}</p>
-            <p className="text-sm">Status: {serverStatus.status}</p>
-            <p className="text-xs text-gray-600 mt-2">{serverStatus.timestamp}</p>
-          </div>
-        )}
-      </div>
-    </div>
+            {/* Fallback Catch-all Route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </Router>
   );
 }
-
-export default App;

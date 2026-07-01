@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 
 const DBConnection = require("./database/db");
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 
@@ -52,7 +53,9 @@ const startServer = async () => {
   }
 };
 
-app.use("/", authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/", authRoutes); // Fallback root mount
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

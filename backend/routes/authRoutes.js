@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login } = require("../controller/authController");
+const { register, login, logout } = require("../controller/authController");
 const {
   validateRegister,
   validateLogin,
@@ -16,7 +16,7 @@ router.get("/", (req, res) => {
   });
 });
 
-// Protected route example
+// Protected route example (Legacy, keep for compatibility)
 router.get("/profile", verifyToken, (req, res) => {
   res.status(200).json({
     success: true,
@@ -27,5 +27,6 @@ router.get("/profile", verifyToken, (req, res) => {
 
 router.post("/register", validateRegister, register);
 router.post("/login", validateLogin, login);
+router.post("/logout", logout);
 
 module.exports = router;

@@ -1,154 +1,92 @@
-# Auth Backend
+# AlgoU Online Judge Platform
 
-A Node.js, Express, MongoDB, and JWT authentication backend with a simple MVC-style structure.
+A modern, high-performance Online Judge Platform built on the MERN stack (MongoDB, Express, React, Node.js). Users can register, log in, manage their profiles, browse coding challenges, write code in a Monaco editor, run custom input test scripts, and submit solutions to be judged against test cases in isolated Docker execution runtimes.
 
-## Features
+---
 
-- User registration and login
-- Password hashing with `bcryptjs`
-- JWT generation for authenticated sessions
-- HTTP-only cookie support on both register and login
-- Mongoose validation for user data
-- Health check endpoint for quick verification
-- Startup checks for required environment variables
-
-## Project Structure
+## 1. Project Directory Structure
 
 ```text
-backend/
-├── controller/
-│   └── authController.js
-├── database/
-│   └── db.js
-├── model/
-│   └── authUser.js
-├── routes/
-│   └── authRoutes.js
-├── index.js
-├── package.json
-└── package-lock.json
+MyProject/
+├── backend/                  # Express.js Server
+│   ├── controller/           # Business logic (Auth, Users, Problems, Submissions)
+│   ├── database/             # Database configuration (Mongoose connect)
+│   ├── middleware/           # Request logging, verification, and errors
+│   ├── model/                # MongoDB Schema models (User, Problem, TestCase, Submission)
+│   ├── routes/               # API endpoint configurations
+│   ├── scripts/              # Seed scripts (e.g., admin creation CLI)
+│   ├── index.js              # Entry point script
+│   └── package.json
+│
+├── frontend/                 # React.js SPA (Vite + TailwindCSS)
+│   ├── src/
+│   │   ├── components/       # Reusable layout components (Navbar, Router guards)
+│   │   ├── context/          # Global Auth state context
+│   │   ├── pages/            # View pages (Home/Dashboard, Login, Register, Profile)
+│   │   ├── api.js            # Axios client with automatic bearer token interceptors
+│   │   ├── App.jsx           # Client-side router configuration
+│   │   └── main.jsx
+│   └── package.json
 ```
 
-## Requirements
+---
 
-- Node.js 14+
-- MongoDB Atlas or local MongoDB
+## 2. Requirements & Prerequisites
 
-## Setup
+*   Node.js (version 16+)
+*   npm or yarn
+*   MongoDB Instance (Atlas cloud or Local instance)
+*   Docker (Optional - for isolated sandbox runner in later phases)
 
-1. Install backend dependencies:
+---
 
-   ```bash
-   cd backend
-   npm install
-   ```
+## 3. Quick Setup & Run Instructions
 
-2. Create `backend/.env` and fill in your values.
+### Step 1: Clone and Configure Environment
 
-3. Use a MongoDB URI that points to the database you want to store users in. If you want users stored in `ALGO`, the URI should end with `/ALGO`.
+1.  Navigate to the **backend** directory:
+    ```bash
+    cd backend
+    npm install
+    ```
+2.  Create a `backend/.env` file with these keys:
+    ```env
+    PORT=3000
+    MONGO_URI=mongodb://localhost:27017/ALGO
+    JWT_SECRET=your_super_secure_random_jwt_secret_key
+    FRONTEND_URL=http://localhost:5173
+    ```
+3.  Navigate to the **frontend** directory:
+    ```bash
+    cd ../frontend
+    npm install
+    ```
+4.  Create a `frontend/.env` file:
+    ```env
+    VITE_BACKEND_URL=http://localhost:3000
+    ```
 
-4. Add these variables to `backend/.env`:
-   ```env
-   MONGO_URI=your_mongodb_uri_here
-   JWT_SECRET=your_strong_random_secret_here
-   PORT=3000
-   NODE_ENV=development
-   FRONTEND_URL=http://localhost:5173
-   ```
+### Step 2: Run the Project Locally
 
-`FRONTEND_URL` is optional, but it is recommended when your frontend runs on a separate origin.
+*   **Start the Backend**:
+    ```bash
+    cd backend
+    npm run dev
+    ```
+*   **Start the Frontend**:
+    ```bash
+    cd frontend
+    npm run dev
+    ```
 
-## Run
+Open your browser and navigate to the Vite preview address (usually `http://localhost:5173`).
 
-Start the server:
+---
 
-```bash
-cd backend
-npm start
-```
+## 5. Completed Sprint Features
 
-If port `3000` is already in use, change `PORT` in `backend/.env` to another free port such as `3002`.
-
-The server will also stop immediately if `MONGO_URI` or `JWT_SECRET` is missing.
-
-## Verify It Works
-
-### Health Check
-
-Send a `GET` request to:
-
-```text
-http://localhost:3000/
-```
-
-Expected response:
-
-```json
-{
-  "message": "AlgoU Auth Server is running!",
-  "status": "healthy",
-  "timestamp": "..."
-}
-```
-
-### Register User
-
-Send a `POST` request to:
-
-```text
-http://localhost:3000/register
-```
-
-Body:
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-
-### Login User
-
-Send a `POST` request to:
-
-```text
-http://localhost:3000/login
-```
-
-Body:
-
-```json
-{
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-
-## MongoDB Notes
-
-- If your `MONGO_URI` ends with `/ALGO`, new users will be stored in the `ALGO` database.
-- If no database name is included in the URI, MongoDB may default to `test`.
-- The user documents are stored in the `authusers` collection.
-
-## Auth Notes
-
-- `POST /register` and `POST /login` both return a JWT and set a `token` HTTP-only cookie.
-- In production, the cookie is configured with `SameSite=None` and `Secure=true` so it can work across origins.
-- Passwords are hashed with `bcryptjs` before being stored.
-
-## Tech Stack
-
-- Express
-- Mongoose
-- MongoDB
-- JWT
-- bcryptjs
-- cors
-- cookie-parser
-
-## License
-
-MIT
+### Authentication & Profile Integration (Phase 2)
+1.  **Axios API Client & Interceptors**: Handles request automation and automatically grabs the JWT token from `localStorage` to inject as a bearer credential on headers.
+2.  **State Protection Router Guards**: Prevents unlogged users from seeing dashboards, and logged-in users from seeing the register screen.
+3.  **Show Password Toggle**: Login, Register, and Profile updates feature a click toggle (using Eye/EyeOff icons) to easily preview input password contents.
+4.  **Profile Danger Zone**: Enables users to delete their account cascade-style (which wipes all associated code submissions in the database to keep data clean).

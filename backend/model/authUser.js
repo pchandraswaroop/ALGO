@@ -35,11 +35,44 @@ const authUserSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters long"],
     },
+
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      lowercase: true,
+    },
+
+    fullName: {
+      type: String,
+      trim: true,
+    },
+
+    dateOfBirth: {
+      type: Date,
+    },
+
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
   },
   {
     timestamps: true,
   },
 );
+
+authUserSchema.pre("save", function (next) {
+  if (!this.fullName && this.firstName && this.lastName) {
+    this.fullName = `${this.firstName} ${this.lastName}`.trim();
+  }
+  if (!this.username && this.email) {
+    this.username = this.email.split("@")[0] + "_" + Math.floor(1000 + Math.random() * 9000);
+  }
+  next();
+});
 
 const AuthUser = mongoose.model("AuthUser", authUserSchema);
 

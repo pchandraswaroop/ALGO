@@ -133,4 +133,17 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login };
+//logout route
+const logout = async (req, res, next) => {
+  try {
+    // Clear token cookie
+    res.status(200).clearCookie("token", getCookieOptions()).json({
+      success: true,
+      message: "Logged out successfully!",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, logout };
