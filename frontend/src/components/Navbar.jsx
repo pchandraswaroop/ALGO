@@ -1,6 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LogOut, User, Code, Terminal, LogIn, UserPlus } from "lucide-react";
+import {
+  LogOut,
+  User,
+  Terminal,
+  LogIn,
+  UserPlus,
+  ShieldCheck,
+} from "lucide-react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -21,7 +28,7 @@ export default function Navbar() {
               <div className="bg-indigo-600 p-2 rounded-lg text-white group-hover:bg-indigo-500 transition-colors">
                 <Terminal className="w-6 h-6" />
               </div>
-              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="font-extrabold text-xl tracking-tight text-white">
                 AlgoU Judge
               </span>
             </Link>
@@ -35,6 +42,15 @@ export default function Navbar() {
             >
               Problems
             </Link>
+            {user?.role === "admin" ? (
+              <Link
+                to="/admin"
+                className="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center gap-1.5"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Admin
+              </Link>
+            ) : null}
           </div>
 
           {/* Auth Button and User details */}

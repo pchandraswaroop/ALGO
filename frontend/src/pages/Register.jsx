@@ -64,7 +64,7 @@ export default function Register() {
 
         {error && (
           <div className="flex items-center gap-2.5 bg-red-950/30 border border-red-900/50 text-red-400 p-3 rounded-lg text-sm mb-6">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 " />
             <p>{error}</p>
           </div>
         )}
@@ -131,7 +131,11 @@ export default function Register() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-200 transition-colors"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>

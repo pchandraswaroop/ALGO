@@ -64,6 +64,7 @@ const register = async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role: user.role,
       createdAt: user.createdAt,
     };
 
@@ -120,6 +121,7 @@ const login = async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role: user.role,
     };
 
     res.status(200).cookie("token", token, getCookieOptions()).json({

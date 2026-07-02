@@ -42,10 +42,14 @@ const problemSchema = new mongoose.Schema(
       type: String,
       required: [true, "Sample output is required"],
     },
+    tags: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Problem = mongoose.model("Problem", problemSchema);

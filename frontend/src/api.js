@@ -20,12 +20,15 @@ API.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Helper to extract clean error message from Axios errors
 const handleAxiosError = (error) => {
-  const message = error.response?.data?.message || error.message || "An unexpected error occurred";
+  const message =
+    error.response?.data?.message ||
+    error.message ||
+    "An unexpected error occurred";
   throw new Error(message);
 };
 
@@ -104,4 +107,147 @@ export const deleteUserProfile = async () => {
     handleAxiosError(error);
   }
 };
+
+// Problems: List all problems
+export const getProblems = async () => {
+  try {
+    const response = await API.get("/api/problems");
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Problems: Get single problem detail
+export const getProblemById = async (problemId) => {
+  try {
+    const response = await API.get(`/api/problems/${problemId}`);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Submissions: Create a new submission
+export const createSubmission = async (submissionData) => {
+  try {
+    const response = await API.post("/api/submissions", submissionData);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Submissions: Get current user's submissions
+export const getUserSubmissions = async () => {
+  try {
+    const response = await API.get("/api/submissions");
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Submissions: Get a single submission
+export const getSubmissionById = async (submissionId) => {
+  try {
+    const response = await API.get(`/api/submissions/${submissionId}`);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Admin: Users
+export const getAdminUsers = async () => {
+  try {
+    const response = await API.get("/api/admin/users");
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+export const deleteAdminUser = async (userId) => {
+  try {
+    const response = await API.delete(`/api/admin/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Admin: Problems
+export const getAdminProblems = async () => {
+  try {
+    const response = await API.get("/api/admin/problems");
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+export const createAdminProblem = async (problemData) => {
+  try {
+    const response = await API.post("/api/admin/problems", problemData);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+export const updateAdminProblem = async (problemId, problemData) => {
+  try {
+    const response = await API.put(
+      `/api/admin/problems/${problemId}`,
+      problemData,
+    );
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+export const deleteAdminProblem = async (problemId) => {
+  try {
+    const response = await API.delete(`/api/admin/problems/${problemId}`);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Admin: Problem Test Cases
+export const getAdminProblemTestCases = async (problemId) => {
+  try {
+    const response = await API.get(
+      `/api/admin/problems/${problemId}/testcases`,
+    );
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+export const createAdminTestCase = async (problemId, testCaseData) => {
+  try {
+    const response = await API.post(
+      `/api/admin/problems/${problemId}/testcases`,
+      testCaseData,
+    );
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+export const deleteAdminTestCase = async (testCaseId) => {
+  try {
+    const response = await API.delete(`/api/admin/testcases/${testCaseId}`);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
 export default API;
