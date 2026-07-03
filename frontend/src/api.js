@@ -138,6 +138,16 @@ export const createSubmission = async (submissionData) => {
   }
 };
 
+// Submissions: Run code immediately with custom input
+export const runCustomCode = async (runData) => {
+  try {
+    const response = await API.post("/api/custom-run", runData);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
 // Submissions: Get current user's submissions
 export const getUserSubmissions = async () => {
   try {

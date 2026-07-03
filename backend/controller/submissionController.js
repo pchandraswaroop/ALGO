@@ -2,6 +2,12 @@ const Submission = require("../model/Submission");
 const Problem = require("../model/Problem");
 const JudgeJob = require("../model/JudgeJob");
 const { enqueueJudgeJob } = require("../queue/judgeQueue");
+const { runCustomCode } = require("../services/customRunRunner");
+
+const resolveRunLimits = (problem) => ({
+  timeLimitMs: Number(problem?.timeLimit || 2) * 1000,
+  memoryLimitMb: Number(problem?.memoryLimit || 256),
+});
 
 const createSubmission = async (req, res, next) => {
   try {
@@ -96,8 +102,49 @@ const getSubmissionById = async (req, res, next) => {
   }
 };
 
+const runCustomInput = async (req, res, next) => {
+  try {
+    const { problemId, language, code, input } = req.body;
+
+    if (!problemId || !language || !code) {
+      return res.status(400).json({
+        success: false,
+        message: "problemId, language, and code are required",
+      });
+    }
+
+    const problem = await Problem.findById(problemId).select(
+      "timeLimit memoryLimit",
+    );
+    if (!problem) {
+      return res.status(404).json({
+        success: false,
+        message: "Problem not found",
+      });
+    }
+
+    const { timeLimitMs, memoryLimitMb } = resolveRunLimits(problem);
+    const result = await runCustomCode({
+      language,
+      code,
+      input: input || "",
+      timeLimitMs,
+      memoryLimitMb,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Custom run completed",
+      result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createSubmission,
   getUserSubmissions,
   getSubmissionById,
+  runCustomInput,
 };

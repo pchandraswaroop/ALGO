@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Problem from "./pages/Problem";
+import Submissions from "./pages/Submissions";
 import Admin from "./pages/Admin";
 import AdminRoute from "./components/AdminRoute";
 
@@ -37,6 +38,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/submissions"
+              element={
+                <ProtectedRoute>
+                  <Submissions />
                 </ProtectedRoute>
               }
             />

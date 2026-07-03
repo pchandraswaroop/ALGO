@@ -1,6 +1,8 @@
 const AuthUser = require("../model/authUser");
-const Submission = require("../model/Submission");
 const bcrypt = require("bcryptjs");
+const {
+  deleteUserWithSubmissions,
+} = require("../services/userDeletionService");
 
 // GET /api/users/profile - Get logged-in user profile
 const getUserProfile = async (req, res, next) => {
@@ -108,11 +110,7 @@ const deleteUserProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    // 1. Cascade delete all submissions of this user
-    await Submission.deleteMany({ userId });
-
-    // 2. Delete the user
-    const deletedUser = await AuthUser.findByIdAndDelete(userId);
+    const deletedUser = await deleteUserWithSubmissions(userId);
     if (!deletedUser) {
       return res.status(404).json({
         success: false,
@@ -120,7 +118,7 @@ const deleteUserProfile = async (req, res, next) => {
       });
     }
 
-    // 3. Clear cookie
+    // Clear cookie after successful account deletion
     res.clearCookie("token");
 
     res.status(200).json({

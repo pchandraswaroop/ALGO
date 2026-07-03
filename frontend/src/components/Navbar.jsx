@@ -42,6 +42,14 @@ export default function Navbar() {
             >
               Problems
             </Link>
+            {user ? (
+              <Link
+                to="/submissions"
+                className="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Submissions
+              </Link>
+            ) : null}
             {user?.role === "admin" ? (
               <Link
                 to="/admin"

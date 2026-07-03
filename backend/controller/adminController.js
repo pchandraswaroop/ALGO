@@ -2,6 +2,9 @@ const AuthUser = require("../model/authUser");
 const Problem = require("../model/Problem");
 const TestCase = require("../model/TestCase");
 const Submission = require("../model/Submission");
+const {
+  deleteUserWithSubmissions,
+} = require("../services/userDeletionService");
 
 const getUsers = async (req, res, next) => {
   try {
@@ -31,15 +34,13 @@ const deleteUser = async (req, res, next) => {
       });
     }
 
-    const deletedUser = await AuthUser.findByIdAndDelete(id);
+    const deletedUser = await deleteUserWithSubmissions(id);
     if (!deletedUser) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-
-    await Submission.deleteMany({ userId: id });
 
     return res.status(200).json({
       success: true,

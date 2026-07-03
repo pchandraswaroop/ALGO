@@ -7,6 +7,7 @@ const DBConnection = require("./database/db");
 const authRoutes = require("./routes/authRoutes");
 const problemRoutes = require("./routes/problemRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
+const customRunRoutes = require("./routes/customRunRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const logger = require("./middleware/logger");
@@ -59,6 +60,7 @@ const startServer = async () => {
 app.use("/api/auth", authRoutes);
 app.use("/api/problems", problemRoutes);
 app.use("/api/submissions", submissionRoutes);
+app.use("/api/custom-run", customRunRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/", authRoutes); // Fallback root mount

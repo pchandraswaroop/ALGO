@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import Editor from "@monaco-editor/react";
 import {
   createSubmission,
   getProblemById,
   getSubmissionById,
   getUserSubmissions,
+  runCustomCode,
 } from "../api";
 import {
   ArrowLeft,
@@ -21,11 +23,25 @@ export default function Problem() {
   const [problem, setProblem] = useState(null);
   const [code, setCode] = useState("// Write your solution here\n");
   const [language, setLanguage] = useState("javascript");
+  const [customInput, setCustomInput] = useState("");
+  const [customRunOutput, setCustomRunOutput] = useState("");
+  const [runningCustomCode, setRunningCustomCode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submissionMessage, setSubmissionMessage] = useState("");
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const editorLanguage =
+    language === "cpp"
+      ? "cpp"
+      : language === "java"
+        ? "java"
+        : language === "python"
+          ? "python"
+          : language === "c"
+            ? "c"
+            : "javascript";
 
   const updateSubmissionInList = (updatedSubmission) => {
     setSubmissions((currentSubmissions) =>
@@ -115,6 +131,31 @@ export default function Problem() {
       setError(err.message || "Failed to create submission");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleCustomRun = async () => {
+    setError("");
+    setCustomRunOutput("");
+    setRunningCustomCode(true);
+
+    try {
+      const res = await runCustomCode({
+        problemId: id,
+        language,
+        code,
+        input: customInput,
+      });
+
+      if (res.success) {
+        setCustomRunOutput(
+          `Verdict: ${res.result.verdict}\n\nStdout:\n${res.result.stdout || ""}\n\nStderr:\n${res.result.stderr || ""}`,
+        );
+      }
+    } catch (err) {
+      setError(err.message || "Failed to run custom code");
+    } finally {
+      setRunningCustomCode(false);
     }
   };
 
@@ -255,14 +296,22 @@ export default function Problem() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <textarea
-                  value={code}
-                  onChange={(event) => setCode(event.target.value)}
-                  rows={18}
-                  spellCheck="false"
-                  className="w-full rounded-2xl bg-slate-950 border border-slate-800 px-4 py-4 font-mono text-sm text-slate-100 outline-none focus:border-indigo-500"
-                  placeholder="Write your solution here"
-                />
+                <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
+                  <Editor
+                    height="420px"
+                    language={editorLanguage}
+                    theme="vs-dark"
+                    value={code}
+                    onChange={(value) => setCode(value ?? "")}
+                    options={{
+                      fontSize: 14,
+                      minimap: { enabled: false },
+                      scrollBeyondLastLine: false,
+                      wordWrap: "on",
+                      automaticLayout: true,
+                    }}
+                  />
+                </div>
 
                 {submissionMessage ? (
                   <div className="text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-900/40 rounded-xl px-4 py-3">
@@ -273,10 +322,12 @@ export default function Problem() {
                 <div className="flex flex-wrap gap-3">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                    onClick={handleCustomRun}
+                    disabled={runningCustomCode}
+                    className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-60 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
                   >
                     <Play className="w-4 h-4" />
-                    Run later
+                    {runningCustomCode ? "Running..." : "Run"}
                   </button>
                   <button
                     type="submit"
@@ -287,6 +338,31 @@ export default function Problem() {
                     {submitting ? "Submitting..." : "Submit"}
                   </button>
                 </div>
+
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-slate-300">
+                    Custom Input
+                  </label>
+                  <textarea
+                    value={customInput}
+                    onChange={(event) => setCustomInput(event.target.value)}
+                    rows={5}
+                    spellCheck="false"
+                    className="w-full rounded-2xl bg-slate-950 border border-slate-800 px-4 py-4 font-mono text-sm text-slate-100 outline-none focus:border-indigo-500"
+                    placeholder="Enter custom input here"
+                  />
+                </div>
+
+                {customRunOutput ? (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-slate-300">
+                      Run Output
+                    </h3>
+                    <pre className="whitespace-pre-wrap rounded-2xl bg-slate-950 border border-slate-800 px-4 py-4 text-sm text-slate-100 overflow-x-auto">
+                      {customRunOutput}
+                    </pre>
+                  </div>
+                ) : null}
               </form>
             </div>
           </div>
