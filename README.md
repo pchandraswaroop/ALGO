@@ -36,7 +36,28 @@ MyProject/
 *   Node.js (version 16+)
 *   npm or yarn
 *   MongoDB Instance (Atlas cloud or Local instance)
-*   Docker (Optional - for isolated sandbox runner in later phases)
+*   RabbitMQ instance (Docker, Docker Desktop, or a local service)
+*   Docker (for isolated sandbox runner)
+
+### Why RabbitMQ runs separately
+
+RabbitMQ is a message broker. Think of it as a waiting room for judge work:
+
+```text
+Backend API  ->  RabbitMQ queue  ->  Judge Worker
+```
+
+The backend API does not judge code directly. It saves a submission, then puts a small message into RabbitMQ. The worker reads that message later and runs the code.
+
+RabbitMQ is a separate program, just like MongoDB is a separate program. Your Node.js app connects to it using `RABBITMQ_URL`.
+
+Common local options:
+
+* **Docker / Docker Desktop**: run RabbitMQ in a container. This is common for development because it is easy to start and stop.
+* **Local Windows service**: install RabbitMQ directly on Windows and keep it running in the background.
+* **Cloud RabbitMQ**: use a hosted RabbitMQ URL. This is more common after deployment.
+
+For local development, Docker is usually the easiest path because you can keep RabbitMQ isolated from your system.
 
 ---
 
@@ -55,6 +76,9 @@ MyProject/
     MONGO_URI=mongodb://localhost:27017/ALGO
     JWT_SECRET=your_super_secure_random_jwt_secret_key
     FRONTEND_URL=http://localhost:5173
+    RABBITMQ_URL=amqp://localhost:5672
+    JUDGE_QUEUE_NAME=judge.submissions
+    JUDGE_WORKER_ENABLED=true
     ```
 3.  Navigate to the **frontend** directory:
     ```bash
@@ -73,6 +97,26 @@ MyProject/
     cd backend
     npm run dev
     ```
+*   **Build Judge Docker Images**:
+    ```powershell
+    cd backend
+    .\docker\build.ps1
+    ```
+    This builds local Docker images for the judge. Each image contains the tools needed to run one family of languages:
+    * `judge-gcc:13` runs C and C++.
+    * `judge-java:17` runs Java.
+    * `judge-node:18` runs JavaScript.
+    * `judge-python:3.10` runs Python.
+
+    The worker uses these images so user code runs inside containers instead of directly on your machine.
+*   **Start the Judge Worker**:
+    ```bash
+    cd backend
+    npm run worker
+    ```
+    This starts `backend/worker.js`. The worker listens to RabbitMQ, receives queued submissions, runs the code in Docker, and updates the MongoDB verdict.
+
+    Keep RabbitMQ running locally on `amqp://localhost:5672`, or update `RABBITMQ_URL`.
 *   **Start the Frontend**:
     ```bash
     cd frontend

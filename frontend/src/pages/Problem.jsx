@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { createSubmission, getProblemById, getUserSubmissions } from "../api";
+import {
+  createSubmission,
+  getProblemById,
+  getSubmissionById,
+  getUserSubmissions,
+} from "../api";
 import {
   ArrowLeft,
   AlertCircle,
@@ -21,6 +26,38 @@ export default function Problem() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const updateSubmissionInList = (updatedSubmission) => {
+    setSubmissions((currentSubmissions) =>
+      currentSubmissions.map((submission) =>
+        submission._id === updatedSubmission._id
+          ? { ...updatedSubmission, problemId: problem }
+          : submission,
+      ),
+    );
+  };
+
+  const pollSubmissionVerdict = async (submissionId) => {
+    const maxAttempts = 15;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const res = await getSubmissionById(submissionId);
+      if (!res.success) {
+        continue;
+      }
+
+      updateSubmissionInList(res.submission);
+
+      if (res.submission.verdict !== "Pending") {
+        setSubmissionMessage(`Verdict: ${res.submission.verdict}`);
+        return;
+      }
+    }
+
+    setSubmissionMessage("Submission is still Pending. Check again shortly.");
+  };
 
   useEffect(() => {
     const loadProblem = async () => {
@@ -67,11 +104,12 @@ export default function Problem() {
       });
 
       if (res.success) {
-        setSubmissionMessage("Submission saved. Verdict is Pending.");
+        setSubmissionMessage("Submission queued. Waiting for verdict...");
         setSubmissions((currentSubmissions) => [
           { ...res.submission, problemId: problem },
           ...currentSubmissions,
         ]);
+        void pollSubmissionVerdict(res.submission._id);
       }
     } catch (err) {
       setError(err.message || "Failed to create submission");
@@ -195,7 +233,7 @@ export default function Problem() {
                     Code Editor
                   </h2>
                   <p className="text-slate-400 text-sm mt-1">
-                    Store a submission now. Judging comes next.
+                    Submit code and wait for the judge verdict.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

@@ -1,5 +1,7 @@
 const Submission = require("../model/Submission");
 const Problem = require("../model/Problem");
+const JudgeJob = require("../model/JudgeJob");
+const { enqueueJudgeJob } = require("../queue/judgeQueue");
 
 const createSubmission = async (req, res, next) => {
   try {
@@ -28,10 +30,24 @@ const createSubmission = async (req, res, next) => {
       verdict: "Pending",
     });
 
+    const judgeJob = await JudgeJob.create({
+      submissionId: submission._id,
+    });
+
+    try {
+      await enqueueJudgeJob(judgeJob._id, submission._id);
+    } catch (queueError) {
+      await JudgeJob.findByIdAndUpdate(judgeJob._id, {
+        error: `Failed to publish to RabbitMQ: ${queueError.message}`,
+      });
+      console.error("Failed to enqueue judge job:", queueError.message);
+    }
+
     return res.status(201).json({
       success: true,
-      message: "Submission created successfully",
+      message: "Submission queued for judging",
       submission,
+      judgeJob,
     });
   } catch (error) {
     next(error);

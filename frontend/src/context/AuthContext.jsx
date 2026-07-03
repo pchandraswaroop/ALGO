@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   loginUser,
   registerUser,
@@ -7,13 +7,18 @@ import {
   updateUserProfile,
   deleteUserProfile,
 } from "../api";
-
-const AuthContext = createContext(null);
+import { AuthContext } from "./AuthContextCore";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
+
+  const handleLocalLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setUser(null);
+  };
 
   // Initialize and verify user auth status
   useEffect(() => {
@@ -38,38 +43,24 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, [token]);
 
-  const handleLocalLogout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    setUser(null);
-  };
-
   const login = async (email, password) => {
-    try {
-      const res = await loginUser(email, password);
-      if (res.success) {
-        localStorage.setItem("token", res.token);
-        setToken(res.token);
-        setUser(res.user);
-      }
-      return res;
-    } catch (err) {
-      throw err;
+    const res = await loginUser(email, password);
+    if (res.success) {
+      localStorage.setItem("token", res.token);
+      setToken(res.token);
+      setUser(res.user);
     }
+    return res;
   };
 
   const register = async (firstName, lastName, email, password) => {
-    try {
-      const res = await registerUser(firstName, lastName, email, password);
-      if (res.success) {
-        localStorage.setItem("token", res.token);
-        setToken(res.token);
-        setUser(res.user);
-      }
-      return res;
-    } catch (err) {
-      throw err;
+    const res = await registerUser(firstName, lastName, email, password);
+    if (res.success) {
+      localStorage.setItem("token", res.token);
+      setToken(res.token);
+      setUser(res.user);
     }
+    return res;
   };
 
   const logout = async () => {
@@ -83,25 +74,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateProfile = async (profileData) => {
-    try {
-      const res = await updateUserProfile(profileData);
-      if (res.success) {
-        setUser(res.user);
-      }
-      return res;
-    } catch (err) {
-      throw err;
+    const res = await updateUserProfile(profileData);
+    if (res.success) {
+      setUser(res.user);
     }
+    return res;
   };
 
   const deleteAccount = async () => {
-    try {
-      const res = await deleteUserProfile();
-      handleLocalLogout();
-      return res;
-    } catch (err) {
-      throw err;
-    }
+    const res = await deleteUserProfile();
+    handleLocalLogout();
+    return res;
   };
 
   return (
@@ -120,12 +103,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };

@@ -1,16 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { User, Mail, Calendar, Key, AlertTriangle, ShieldAlert, Trash2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../context/useAuth";
+import {
+  User,
+  Calendar,
+  Key,
+  AlertTriangle,
+  ShieldAlert,
+  Trash2,
+  CheckCircle2,
+  AlertCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+
+const formatProfileDate = (dateOfBirth) =>
+  dateOfBirth ? new Date(dateOfBirth).toISOString().split("T")[0] : "";
 
 export default function Profile() {
   const { user, updateProfile, deleteAccount } = useAuth();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [username, setUsername] = useState(user?.username || "");
+  const [fullName, setFullName] = useState(
+    user?.fullName || `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+  );
+  const [email, setEmail] = useState(user?.email || "");
+  const [dateOfBirth, setDateOfBirth] = useState(
+    formatProfileDate(user?.dateOfBirth),
+  );
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
@@ -18,19 +36,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  // Populate data when user object is loaded
-  useEffect(() => {
-    if (user) {
-      setUsername(user.username || "");
-      setFullName(user.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim());
-      setEmail(user.email || "");
-      if (user.dateOfBirth) {
-        // Format to YYYY-MM-DD for date input
-        setDateOfBirth(new Date(user.dateOfBirth).toISOString().split("T")[0]);
-      }
-    }
-  }, [user]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();

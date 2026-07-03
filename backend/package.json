@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "worker": "node worker.js",
+    "dev:worker": "nodemon worker.js",
     "seed:problems": "node scripts/seedProblems.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,6 +23,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "amqplib": "^0.10.4",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
