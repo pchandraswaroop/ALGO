@@ -1,7 +1,53 @@
 const crypto = require("crypto");
 const { spawn } = require("child_process");
+const fs = require("fs/promises");
+const path = require("path");
+const os = require("os");
 
-const toDockerMountPath = (workDir) => workDir.replace(/\\/g, "/");
+let hostBackendPath = process.env.HOST_BACKEND_PATH || null;
+
+const detectHostBackendPath = () => {
+  if (hostBackendPath) return hostBackendPath;
+  try {
+    const hostname = os.hostname();
+    const execSync = require("child_process").execSync;
+    const inspectOutput = execSync(`docker inspect ${hostname}`, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    const inspectData = JSON.parse(inspectOutput);
+    const mounts = inspectData[0]?.Mounts || [];
+    const appMount = mounts.find((m) => m.Destination === "/app");
+    if (appMount) {
+      hostBackendPath = appMount.Source;
+      console.log(
+        `[Docker Sandbox] Auto-detected host backend path: ${hostBackendPath}`
+      );
+    }
+  } catch (err) {
+    // Fallback if not inside docker container or docker inspect is unavailable
+  }
+  return hostBackendPath;
+};
+
+// Run auto-detection
+detectHostBackendPath();
+
+const toDockerMountPath = (workDir) => {
+  let mappedPath = workDir;
+  if (hostBackendPath && workDir.startsWith("/app")) {
+    mappedPath = workDir.replace(/^\/app/, hostBackendPath);
+  }
+  return mappedPath.replace(/\\/g, "/");
+};
+
+const createWorkDir = async (prefix) => {
+  const tempParent = path.join(process.cwd(), "temp");
+  await fs.mkdir(tempParent, { recursive: true });
+  const workDir = await fs.mkdtemp(path.join(tempParent, prefix));
+  await fs.chmod(workDir, 0o777);
+  return workDir;
+};
 
 const execFile = (command, args, options = {}) =>
   new Promise((resolve) => {
@@ -116,4 +162,6 @@ const runDockerContainer = async ({
 
 module.exports = {
   runDockerContainer,
+  createWorkDir,
+  toDockerMountPath,
 };

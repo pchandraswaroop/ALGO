@@ -76,6 +76,33 @@ const problems = [
   },
 ];
 
+const testCasesData = {
+  "Two Sum": [
+    { input: "4\n2 7 11 15\n9", expectedOutput: "0 1", isHidden: true },
+    { input: "3\n3 2 4\n6", expectedOutput: "1 2", isHidden: true },
+    { input: "2\n3 3\n6", expectedOutput: "0 1", isHidden: true }
+  ],
+  "Valid Parentheses": [
+    { input: "()[]{}", expectedOutput: "true", isHidden: true },
+    { input: "(]", expectedOutput: "false", isHidden: true },
+    { input: "([)]", expectedOutput: "false", isHidden: true },
+    { input: "{[]}", expectedOutput: "true", isHidden: true }
+  ],
+  "Longest Substring Without Repeating Characters": [
+    { input: "abcabcbb", expectedOutput: "3", isHidden: true },
+    { input: "bbbbb", expectedOutput: "1", isHidden: true },
+    { input: "pwwkew", expectedOutput: "3", isHidden: true }
+  ],
+  "Merge Intervals": [
+    { input: "4\n1 3\n2 6\n8 10\n15 18", expectedOutput: "1 6\n8 10\n15 18", isHidden: true },
+    { input: "2\n1 4\n4 5", expectedOutput: "1 5", isHidden: true }
+  ],
+  "Median of Two Sorted Arrays": [
+    { input: "2 4\n1 3 5", expectedOutput: "3", isHidden: true },
+    { input: "1 2\n3 4", expectedOutput: "2.5", isHidden: true }
+  ]
+};
+
 const seedProblems = async () => {
   const mongoUri = process.env.MONGO_URI;
 
@@ -85,19 +112,30 @@ const seedProblems = async () => {
 
   await mongoose.connect(mongoUri);
 
-  const operations = problems.map((problem) => ({
-    updateOne: {
-      filter: { title: problem.title },
-      update: { $set: problem },
-      upsert: true,
-    },
-  }));
+  const TestCase = require("../model/TestCase");
 
-  const result = await Problem.bulkWrite(operations);
+  // Clean up existing test cases first
+  await TestCase.deleteMany({});
 
-  console.log("Problem seeding completed successfully");
-  console.log(JSON.stringify(result.result, null, 2));
+  for (const problemData of problems) {
+    const problem = await Problem.findOneAndUpdate(
+      { title: problemData.title },
+      { $set: problemData },
+      { upsert: true, new: true }
+    );
 
+    const tcs = testCasesData[problem.title] || [];
+    if (tcs.length > 0) {
+      const tcOperations = tcs.map(tc => ({
+        ...tc,
+        problemId: problem._id
+      }));
+      await TestCase.insertMany(tcOperations);
+      console.log(`Seeded ${tcs.length} test cases for problem: ${problem.title}`);
+    }
+  }
+
+  console.log("Database seeding completed successfully.");
   await mongoose.connection.close();
 };
 

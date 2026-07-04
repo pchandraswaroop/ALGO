@@ -5,7 +5,7 @@ const path = require("path");
 
 const TestCase = require("../model/TestCase");
 const { LANGUAGE_SPECS } = require("./languageRuntime");
-const { runDockerContainer } = require("./dockerSandbox");
+const { runDockerContainer, createWorkDir } = require("./dockerSandbox");
 
 const normalizeOutput = (value) =>
   String(value ?? "")
@@ -40,11 +40,11 @@ const runSubmission = async ({ submission, problem }) => {
 
   const timeLimitMs = Number(problem.timeLimit || 2) * 1000;
   const memoryLimitMb = Number(problem.memoryLimit || 256);
-  const workDir = await fs.mkdtemp(path.join(os.tmpdir(), "judge-"));
+  const workDir = await createWorkDir("judge-");
 
   try {
-    await fs.chmod(workDir, 0o777);
     await fs.writeFile(path.join(workDir, spec.file), submission.code, "utf8");
+    await fs.chmod(path.join(workDir, spec.file), 0o777);
 
     if (spec.compile) {
       const compileResult = await runDockerContainer({
@@ -92,11 +92,14 @@ const runSubmission = async ({ submission, problem }) => {
       }
 
       if (runResult.code !== 0) {
+        const isOOM = runResult.code === 137;
         return {
           verdict: "Runtime Error",
           executionTime: maxExecutionTime,
-          memoryUsed: 0,
-          error: runResult.stderr.slice(0, 4000),
+          memoryUsed: isOOM ? memoryLimitMb : 0,
+          error: isOOM 
+            ? `Runtime Error: Memory Limit Exceeded (${memoryLimitMb}MB)` 
+            : runResult.stderr.slice(0, 4000),
         };
       }
 

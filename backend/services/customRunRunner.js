@@ -3,7 +3,7 @@ const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
 
-const { runDockerContainer } = require("./dockerSandbox");
+const { runDockerContainer, createWorkDir } = require("./dockerSandbox");
 const { LANGUAGE_SPECS } = require("./languageRuntime");
 
 const runCustomCode = async ({
@@ -26,11 +26,11 @@ const runCustomCode = async ({
     };
   }
 
-  const workDir = await fs.mkdtemp(path.join(os.tmpdir(), "custom-run-"));
+  const workDir = await createWorkDir("custom-run-");
 
   try {
-    await fs.chmod(workDir, 0o777);
     await fs.writeFile(path.join(workDir, spec.file), code, "utf8");
+    await fs.chmod(path.join(workDir, spec.file), 0o777);
 
     if (spec.compile) {
       const compileResult = await runDockerContainer({
