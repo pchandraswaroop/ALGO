@@ -3,13 +3,14 @@ const dotenv = require("dotenv");
 const DBConnection = require("./database/db");
 const JudgeJob = require("./model/JudgeJob");
 const Submission = require("./model/Submission");
+require("./model/Problem");
 const { getRabbitChannel, closeRabbitConnection } = require("./queue/rabbitmq");
 const { JUDGE_QUEUE_NAME } = require("./queue/judgeQueue");
 const { runSubmission } = require("./services/judgeRunner");
 
 dotenv.config();
 
-const workerEnabled = process.env.JUDGE_WORKER_ENABLED === "true";
+const workerEnabled = process.env.JUDGE_WORKER_ENABLED !== "false";
 const workerPrefetch = Number(process.env.JUDGE_WORKER_PREFETCH || 1);
 
 const parseMessage = (message) => {
@@ -42,9 +43,8 @@ const processJudgeMessage = async (payload) => {
     throw new Error(`Judge job not found: ${judgeJobId}`);
   }
 
-  const submission = await Submission.findById(submissionId).populate(
-    "problemId",
-  );
+  const submission =
+    await Submission.findById(submissionId).populate("problemId");
   if (!submission) {
     throw new Error(`Submission not found: ${submissionId}`);
   }
@@ -70,9 +70,7 @@ const processJudgeMessage = async (payload) => {
     error: result.error || "",
   });
 
-  console.log(
-    `Judged submission ${submissionId}: ${result.verdict}`,
-  );
+  console.log(`Judged submission ${submissionId}: ${result.verdict}`);
 };
 
 const startWorker = async () => {
@@ -80,7 +78,7 @@ const startWorker = async () => {
 
   if (!workerEnabled) {
     console.log(
-      "Judge worker is disabled. Set JUDGE_WORKER_ENABLED=true after the Docker runner is implemented.",
+      "Judge worker is disabled. Set JUDGE_WORKER_ENABLED=false to turn it off.",
     );
     return;
   }

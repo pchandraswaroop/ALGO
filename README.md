@@ -33,11 +33,11 @@ MyProject/
 
 ## 2. Requirements & Prerequisites
 
-*   Node.js (version 16+)
-*   npm or yarn
-*   MongoDB Instance (Atlas cloud or Local instance)
-*   RabbitMQ instance (Docker, Docker Desktop, or a local service)
-*   Docker (for isolated sandbox runner)
+- Node.js (version 16+)
+- npm or yarn
+- MongoDB Instance (Atlas cloud or Local instance)
+- RabbitMQ instance (Docker, Docker Desktop, or a local service)
+- Docker (for isolated sandbox runner)
 
 ### Why RabbitMQ runs separately
 
@@ -53,9 +53,9 @@ RabbitMQ is a separate program, just like MongoDB is a separate program. Your No
 
 Common local options:
 
-* **Docker / Docker Desktop**: run RabbitMQ in a container. This is common for development because it is easy to start and stop.
-* **Local Windows service**: install RabbitMQ directly on Windows and keep it running in the background.
-* **Cloud RabbitMQ**: use a hosted RabbitMQ URL. This is more common after deployment.
+- **Docker / Docker Desktop**: run RabbitMQ in a container. This is common for development because it is easy to start and stop.
+- **Local Windows service**: install RabbitMQ directly on Windows and keep it running in the background.
+- **Cloud RabbitMQ**: use a hosted RabbitMQ URL. This is more common after deployment.
 
 For local development, Docker is usually the easiest path because you can keep RabbitMQ isolated from your system.
 
@@ -92,44 +92,30 @@ For local development, Docker is usually the easiest path because you can keep R
 
 ### Step 2: Run the Project Locally
 
-*   **Start the Backend**:
-    ```bash
-    cd backend
-    npm run dev
+1.  Start Docker Desktop and make sure the Linux engine is running.
+2.  From the project root, run the bootstrap script:
+    ```powershell
+    .\start-dev.ps1
     ```
-*   **Build Judge Docker Images**:
+    This checks Docker, builds the judge sandbox images, and starts the full stack.
+3.  If you want to run each piece manually instead, use:
     ```powershell
     cd backend
     .\docker\build.ps1
-    ```
-    This builds local Docker images for the judge. Each image contains the tools needed to run one family of languages:
-    * `judge-gcc:13` runs C and C++.
-    * `judge-java:17` runs Java.
-    * `judge-node:18` runs JavaScript.
-    * `judge-python:3.10` runs Python.
-
-    The worker uses these images so user code runs inside containers instead of directly on your machine.
-*   **Start the Judge Worker**:
-    ```bash
-    cd backend
-    npm run worker
-    ```
-    This starts `backend/worker.js`. The worker listens to RabbitMQ, receives queued submissions, runs the code in Docker, and updates the MongoDB verdict.
-
-    Keep RabbitMQ running locally on `amqp://localhost:5672`, or update `RABBITMQ_URL`.
-*   **Start the Frontend**:
-    ```bash
-    cd frontend
-    npm run dev
+    cd ..
+    docker compose up --build
     ```
 
-Open your browser and navigate to the Vite preview address (usually `http://localhost:5173`).
+That brings up RabbitMQ, the backend API, the judge worker, and the frontend. The frontend opens on `http://localhost:5173`, the backend on `http://localhost:3002`, and RabbitMQ management on `http://localhost:15672`.
+
+If you prefer the old manual flow, you can still run the backend, worker, and frontend separately from their own folders.
 
 ---
 
 ## 5. Completed Sprint Features
 
 ### Authentication & Profile Integration (Phase 2)
+
 1.  **Axios API Client & Interceptors**: Handles request automation and automatically grabs the JWT token from `localStorage` to inject as a bearer credential on headers.
 2.  **State Protection Router Guards**: Prevents unlogged users from seeing dashboards, and logged-in users from seeing the register screen.
 3.  **Show Password Toggle**: Login, Register, and Profile updates feature a click toggle (using Eye/EyeOff icons) to easily preview input password contents.

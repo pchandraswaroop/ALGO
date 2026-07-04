@@ -1,0 +1,63 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      FRONTEND_URL: http://localhost:5173
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      DOCKER_HOST: unix:///var/run/docker.sock
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: npm run dev
+    depends_on:
+      - rabbitmq
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: npm run dev:worker
+    depends_on:
+      - rabbitmq
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      VITE_BACKEND_URL: http://localhost:3002
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  rabbitmq_data:
+  backend_node_modules:
+  frontend_node_modules:
