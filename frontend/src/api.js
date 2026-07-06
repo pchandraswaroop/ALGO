@@ -118,6 +118,16 @@ export const getProblems = async () => {
   }
 };
 
+// Problems: Get statistics
+export const getProblemsStats = async () => {
+  try {
+    const response = await API.get("/api/problems/stats");
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
 // Problems: Get single problem detail
 export const getProblemById = async (problemId) => {
   try {

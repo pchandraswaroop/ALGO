@@ -1,1 +1,51 @@
 @import "tailwindcss";
+
+:root {
+  --app-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --border-main: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  
+  --navbar-bg: rgba(255, 255, 255, 0.95);
+  --sidebar-bg: #ffffff;
+  --input-bg: #f8fafc;
+  --input-border: #cbd5e1;
+  --button-secondary-bg: #ffffff;
+  --button-secondary-border: #cbd5e1;
+  --button-secondary-text: #334155;
+  --button-secondary-hover: #f8fafc;
+
+  --grid-dot-color: rgba(148, 163, 184, 0.16);
+  --grid-glow-opacity: 0.05;
+}
+
+.dark {
+  --app-bg: #020617;
+  --card-bg: #0f172a;
+  --border-main: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+
+  --navbar-bg: rgba(15, 23, 42, 0.9);
+  --sidebar-bg: #020617;
+  --input-bg: #020617;
+  --input-border: #1e293b;
+  --button-secondary-bg: #1e293b;
+  --button-secondary-border: #334155;
+  --button-secondary-text: #cbd5e1;
+  --button-secondary-hover: #0f172a;
+
+  --grid-dot-color: rgba(20, 184, 166, 0.07);
+  --grid-glow-opacity: 0.12;
+}
+
+.bg-grid-radial {
+  background-color: var(--app-bg);
+  background-image: 
+    radial-gradient(var(--grid-dot-color) 1.5px, transparent 1.5px),
+    radial-gradient(circle 800px at 50% 50%, rgba(16, 185, 129, var(--grid-glow-opacity)), transparent 85%);
+  background-size: 28px 28px, 100% 100%;
+  background-position: center center;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}

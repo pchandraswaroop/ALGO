@@ -1,4 +1,6 @@
 const Problem = require("../model/Problem");
+const User = require("../model/authUser");
+const Submission = require("../model/Submission");
 
 const getProblems = async (req, res, next) => {
   try {
@@ -39,7 +41,34 @@ const getProblemById = async (req, res, next) => {
   }
 };
 
+const getProblemsStats = async (req, res, next) => {
+  try {
+    const problemsCount = await Problem.countDocuments({});
+    const usersCount = await User.countDocuments({});
+    const submissionsCount = await Submission.countDocuments({});
+
+    // Fetch average execution time from accepted submissions
+    const acceptedSubmissions = await Submission.find({ status: "Accepted" }).select("executionTime");
+    let avgExecutionTime = 4.2; // default fallback
+    if (acceptedSubmissions.length > 0) {
+      const sum = acceptedSubmissions.reduce((acc, sub) => acc + (sub.executionTime || 0), 0);
+      avgExecutionTime = (sum / acceptedSubmissions.length).toFixed(1);
+    }
+
+    return res.status(200).json({
+      success: true,
+      problemsCount,
+      usersCount,
+      submissionsCount,
+      avgExecutionTime: parseFloat(avgExecutionTime),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProblems,
   getProblemById,
+  getProblemsStats,
 };

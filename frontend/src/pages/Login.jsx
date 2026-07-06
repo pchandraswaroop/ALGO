@@ -20,7 +20,7 @@ export default function Login() {
     try {
       const res = await login(email, password);
       if (res.success) {
-        navigate("/");
+        navigate("/problems");
       }
     } catch (err) {
       setError(err.message || "Invalid email or password");
@@ -30,26 +30,26 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-slate-950 px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-[var(--app-bg)] bg-grid-radial px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden transition-colors duration-200">
       {/* Background blobs for premium glassmorphism aesthetic */}
-      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-emerald-600/5 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-600/5 rounded-full blur-3xl -z-10 animate-pulse"></div>
 
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl shadow-slate-950/50 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-[var(--card-bg)] border border-[var(--border-main)] p-8 rounded-2xl shadow-sm backdrop-blur-sm transition-all hover:border-emerald-500/20">
         <div className="text-center mb-8">
-          <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 mb-4">
+          <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600/20 text-emerald-600 dark:text-emerald-450 mb-4">
             <Terminal className="w-6 h-6" />
           </div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">
+          <h2 className="text-3xl font-extrabold text-[var(--text-main)] tracking-tight">
             Welcome Back
           </h2>
-          <p className="text-sm text-slate-400 mt-2">
+          <p className="text-sm text-[var(--text-muted)] mt-2">
             Sign in to start submitting solutions
           </p>
         </div>
 
         {error && (
-          <div className="flex items-center gap-2.5 bg-red-950/30 border border-red-900/50 text-red-400 p-3 rounded-lg text-sm mb-6">
+          <div className="flex items-center gap-2.5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm mb-6">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <p>{error}</p>
           </div>
@@ -57,7 +57,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">
               Email Address
             </label>
             <input
@@ -65,13 +65,13 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg py-2 px-3 text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">
               Password
             </label>
             <div className="relative">
@@ -80,13 +80,13 @@ export default function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 pl-3 pr-10 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg py-2 pl-3 pr-10 text-[var(--text-main)] placeholder-slate-450 focus:outline-none focus:border-emerald-500 transition-colors"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-200 transition-colors"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -96,18 +96,18 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg py-2.5 text-sm font-semibold transition-all disabled:opacity-50 shadow-lg shadow-indigo-600/20"
+            className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2.5 text-sm font-bold transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20"
           >
-            <LogIn className="w-4 h-4" />
+            <LogIn className="w-4 h-4 text-white" />
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-400 mt-6">
+        <p className="text-center text-sm text-[var(--text-muted)] mt-6 font-sans">
           New to AlgoU?{" "}
           <Link
             to="/register"
-            className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
           >
             Create an account
           </Link>

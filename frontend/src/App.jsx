@@ -16,20 +16,52 @@ import Problem from "./pages/Problem";
 import Submissions from "./pages/Submissions";
 import Admin from "./pages/Admin";
 import AdminRoute from "./components/AdminRoute";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
+import WorkspaceLayout from "./components/WorkspaceLayout";
 
 export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-slate-950 font-sans antialiased text-slate-200">
+        <div className="min-h-screen bg-[var(--app-bg)] font-sans antialiased text-[var(--text-main)] transition-colors duration-200">
           <Navbar />
           <Routes>
-            {/* Protected Routes */}
+            {/* Public Landing Page */}
             <Route
               path="/"
+              element={<Landing />}
+            />
+
+            {/* Protected Routes wrapped in Sidebar WorkspaceLayout */}
+            <Route
+              path="/problems"
               element={
                 <ProtectedRoute>
-                  <Home />
+                  <WorkspaceLayout>
+                    <Home />
+                  </WorkspaceLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <WorkspaceLayout>
+                    <Dashboard />
+                  </WorkspaceLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <WorkspaceLayout>
+                    <Settings />
+                  </WorkspaceLayout>
                 </ProtectedRoute>
               }
             />
@@ -37,7 +69,9 @@ export default function App() {
               path="/profile"
               element={
                 <ProtectedRoute>
-                  <Profile />
+                  <WorkspaceLayout>
+                    <Profile />
+                  </WorkspaceLayout>
                 </ProtectedRoute>
               }
             />
@@ -45,10 +79,14 @@ export default function App() {
               path="/submissions"
               element={
                 <ProtectedRoute>
-                  <Submissions />
+                  <WorkspaceLayout>
+                    <Submissions />
+                  </WorkspaceLayout>
                 </ProtectedRoute>
               }
             />
+
+            {/* Editor Workspace (Full width) */}
             <Route
               path="/problems/:id"
               element={
@@ -57,6 +95,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            
+            {/* Admin Controls */}
             <Route
               path="/admin"
               element={
@@ -66,7 +106,7 @@ export default function App() {
               }
             />
 
-            {/* Public Routes */}
+            {/* Public Auth Routes */}
             <Route
               path="/login"
               element={

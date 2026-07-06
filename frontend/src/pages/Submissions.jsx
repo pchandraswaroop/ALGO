@@ -2,21 +2,19 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getUserSubmissions } from "../api";
 import {
-  AlertCircle,
-  ArrowRight,
-  Clock3,
-  LoaderCircle,
   ClipboardList,
+  AlertCircle,
+  LoaderCircle,
+  Clock3,
+  ArrowRight,
 } from "lucide-react";
 
 const verdictStyles = {
-  Accepted: "bg-emerald-500/10 text-emerald-400 border-emerald-900/50",
-  "Wrong Answer": "bg-red-500/10 text-red-400 border-red-900/50",
-  "Time Limit Exceeded": "bg-amber-500/10 text-amber-400 border-amber-900/50",
-  "Runtime Error": "bg-orange-500/10 text-orange-400 border-orange-900/50",
-  "Compilation Error":
-    "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-900/50",
-  Pending: "bg-slate-500/10 text-slate-300 border-slate-700",
+  Accepted: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-450 border border-emerald-200 dark:border-emerald-800",
+  "Wrong Answer": "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-450 border border-red-200 dark:border-red-800",
+  "Runtime Error": "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-450 border border-orange-200 dark:border-orange-850",
+  "Compilation Error": "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-450 border border-amber-200 dark:border-amber-800",
+  Pending: "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700",
 };
 
 export default function Submissions() {
@@ -44,19 +42,23 @@ export default function Submissions() {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-950 text-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="bg-linear-to-r from-slate-900 to-indigo-950 border border-slate-800 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl -z-10"></div>
+    <div className="min-h-[calc(100vh-4rem)] bg-[var(--app-bg)] bg-grid-radial text-[var(--text-main)] py-12 px-4 sm:px-6 lg:px-8 relative select-none transition-colors duration-200">
+      {/* Decorative Blur Orbs */}
+      <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-1/3 right-1/10 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl -z-10"></div>
+
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
+        <div className="bg-[var(--card-bg)] border border-[var(--border-main)] rounded-3xl p-8 shadow-sm relative overflow-hidden transition-all hover:border-emerald-500/10">
+          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-60 h-60 bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
           <div className="flex items-start gap-4">
-            <div className="bg-indigo-500/10 text-indigo-400 p-3 rounded-2xl border border-indigo-500/20">
+            <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 p-3 rounded-2xl border border-emerald-100 dark:border-emerald-950/20">
               <ClipboardList className="w-7 h-7" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-4xl font-extrabold tracking-tight bg-linear-to-r from-white to-slate-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-extrabold tracking-tight text-[var(--text-main)]">
                 Submission History
               </h1>
-              <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
+              <p className="text-[var(--text-muted)] text-lg leading-relaxed max-w-2xl font-sans">
                 Review every submission you have made, track verdicts, and jump
                 back into the problem when needed.
               </p>
@@ -64,24 +66,24 @@ export default function Submissions() {
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+        <div className="bg-[var(--card-bg)] border border-[var(--border-main)] rounded-2xl overflow-hidden shadow-sm transition-all hover:border-emerald-500/10">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 py-16 text-slate-400">
-              <LoaderCircle className="w-5 h-5 animate-spin" />
+            <div className="flex items-center justify-center gap-3 py-16 text-[var(--text-muted)]">
+              <LoaderCircle className="w-5 h-5 animate-spin text-emerald-600" />
               Loading submissions...
             </div>
           ) : error ? (
-            <div className="flex items-center gap-3 px-6 py-8 text-red-400">
+            <div className="flex items-center gap-3 px-6 py-8 text-red-600">
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span>{error}</span>
             </div>
           ) : submissions.length === 0 ? (
-            <div className="px-6 py-10 text-slate-400">No submissions yet.</div>
+            <div className="px-6 py-10 text-[var(--text-muted)] font-mono text-xs">No submissions yet.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-950 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                  <tr className="bg-[var(--input-bg)] text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider border-b border-[var(--border-main)]">
                     <th className="py-4 px-6">Problem</th>
                     <th className="py-4 px-6">Language</th>
                     <th className="py-4 px-6">Verdict</th>
@@ -90,28 +92,28 @@ export default function Submissions() {
                     <th className="py-4 px-6">Open</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/50">
+                <tbody className="divide-y divide-[var(--border-main)]">
                   {submissions.map((submission) => (
                     <tr
                       key={submission._id}
-                      className="hover:bg-slate-850/30 transition-colors"
+                      className="hover:bg-[var(--input-bg)] transition-colors"
                     >
                       <td className="py-4 px-6">
                         <div className="flex flex-col gap-1">
-                          <span className="font-semibold text-white">
+                          <span className="font-semibold text-[var(--text-main)]">
                             {submission.problemId?.title || "Unknown Problem"}
                           </span>
-                          <span className="text-xs text-slate-500 font-mono">
+                          <span className="text-xs text-[var(--text-muted)] font-mono">
                             #
                             {String(
                               submission.problemId?._id ||
                                 submission.problemId ||
-                                submission._id,
+                                submission._id
                             ).slice(-6)}
                           </span>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-slate-300 capitalize">
+                      <td className="py-4 px-6 text-[var(--text-main)] opacity-95 capitalize">
                         {submission.language}
                       </td>
                       <td className="py-4 px-6">
@@ -121,12 +123,12 @@ export default function Submissions() {
                           {submission.verdict}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-slate-300 text-sm">
+                      <td className="py-4 px-6 text-[var(--text-main)] text-sm font-mono">
                         {submission.executionTime || 0} ms
                       </td>
-                      <td className="py-4 px-6 text-slate-400 text-sm whitespace-nowrap">
-                        <div className="inline-flex items-center gap-2">
-                          <Clock3 className="w-4 h-4 text-slate-500" />
+                      <td className="py-4 px-6 text-[var(--text-muted)] text-sm whitespace-nowrap">
+                        <div className="inline-flex items-center gap-2 font-mono">
+                          <Clock3 className="w-4 h-4 text-[var(--text-muted)]" />
                           {new Date(submission.submittedAt).toLocaleString()}
                         </div>
                       </td>
@@ -134,13 +136,13 @@ export default function Submissions() {
                         {submission.problemId?._id ? (
                           <Link
                             to={`/problems/${submission.problemId._id}`}
-                            className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+                            className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 text-sm font-semibold"
                           >
                             View
                             <ArrowRight className="w-4 h-4" />
                           </Link>
                         ) : (
-                          <span className="text-slate-600 text-sm">N/A</span>
+                          <span className="text-[var(--text-muted)] text-sm">N/A</span>
                         )}
                       </td>
                     </tr>

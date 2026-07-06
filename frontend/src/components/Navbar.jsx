@@ -1,99 +1,148 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import {
   LogOut,
-  User,
   Terminal,
   LogIn,
   UserPlus,
   ShieldCheck,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || "light";
+  });
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
+  const getInitials = () => {
+    if (user) {
+      const name =
+        user.fullName ||
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+        user.username;
+      const parts = name.split(" ");
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return name.slice(0, 2).toUpperCase();
+    }
+    return "US";
+  };
+
   return (
-    <nav className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-[var(--navbar-bg)] backdrop-blur-md border-b border-[var(--border-main)] text-[var(--text-main)] sticky top-0 z-50 select-none transition-colors duration-200">
+      <div className="w-full px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Brand */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="bg-indigo-600 p-2 rounded-lg text-white group-hover:bg-indigo-500 transition-colors">
-                <Terminal className="w-6 h-6" />
+          {/* Left Brand and Navigation Links */}
+          <div className="flex items-center gap-8">
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+              <div className="bg-emerald-600 p-2 rounded-lg text-white group-hover:bg-emerald-600 transition-colors">
+                <Terminal className="w-5 h-5" />
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-white">
+              <span className="font-extrabold text-lg tracking-tight text-[var(--text-main)]">
                 AlgoU Judge
               </span>
             </Link>
+
+            {/* Navigation Links */}
+            <div className="flex items-center space-x-2 font-sans">
+              <Link
+                to="/problems"
+                className="text-[var(--text-muted)] hover:text-[var(--text-main)] px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
+              >
+                Problems
+              </Link>
+              {user && (
+                <Link
+                  to="/dashboard"
+                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
+                >
+                  Dashboard
+                </Link>
+              )}
+            </div>
           </div>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              to="/"
-              className="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+          {/* Right Action Panel */}
+          <div className="flex items-center gap-3.5">
+            {/* Theme Toggler */}
+            <button
+              onClick={toggleTheme}
+              className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900/60"
+              title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
             >
-              Problems
-            </Link>
-            {user ? (
-              <Link
-                to="/submissions"
-                className="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Submissions
-              </Link>
-            ) : null}
-            {user?.role === "admin" ? (
-              <Link
-                to="/admin"
-                className="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center gap-1.5"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                Admin
-              </Link>
-            ) : null}
-          </div>
+              {theme === "light" ? (
+                <Moon className="w-4 h-4" />
+              ) : (
+                <Sun className="w-4 h-4 text-amber-400" />
+              )}
+            </button>
 
-          {/* Auth Button and User details */}
-          <div className="flex items-center gap-4">
             {user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3.5">
+                {/* Admin controls badge link */}
+                {user?.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    className="text-[var(--text-muted)] hover:text-[var(--text-main)] px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 border border-[var(--border-main)] bg-[var(--input-bg)]"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Admin</span>
+                  </Link>
+                )}
+
+                {/* Circular Profile Initials Avatar Link */}
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-xs font-extrabold text-[var(--text-main)] transition-all border border-[var(--border-main)] shadow-sm"
+                  title="View Profile"
                 >
-                  <User className="w-4 h-4 text-indigo-400" />
-                  <span>{user.username || user.firstName}</span>
+                  {getInitials()}
                 </Link>
+
+                {/* Log out */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 bg-red-950/40 text-red-400 border border-red-900/50 hover:bg-red-900/40 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  className="flex items-center justify-center p-2 text-red-600 hover:text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 hover:border-red-300 dark:hover:border-red-900/50 rounded-xl transition-all"
+                  title="Logout"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <LogOut className="w-4.5 h-4.5" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3.5">
                 <Link
                   to="/login"
-                  className="flex items-center gap-1.5 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
                 >
-                  <LogIn className="w-4 h-4" />
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20"
                 >
-                  <UserPlus className="w-4 h-4" />
                   Register
                 </Link>
               </div>

@@ -44,7 +44,7 @@ export default function Home() {
         (accumulator[problem.difficulty] || 0) + 1;
       return accumulator;
     },
-    { Easy: 0, Medium: 0, Hard: 0 },
+    { Easy: 0, Medium: 0, Hard: 0 }
   );
 
   const acceptanceRate = totalProblems
@@ -53,21 +53,25 @@ export default function Home() {
           difficultyCount.Medium * 0.7 +
           difficultyCount.Hard * 0.4) /
           (totalProblems * 1.5)) *
-          100,
+          100
       )
     : 0;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-950 text-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-[calc(100vh-4rem)] bg-[var(--app-bg)] bg-grid-radial text-[var(--text-main)] py-12 px-4 sm:px-6 lg:px-8 relative select-none transition-colors duration-200">
+      {/* Decorative Blur Orbs */}
+      <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-1/3 right-1/10 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl -z-10"></div>
+
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         {/* Welcome Banner */}
-        <div className="bg-linear-to-r from-slate-900 to-indigo-950 border border-slate-800 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl -z-10"></div>
+        <div className="bg-[var(--card-bg)] border border-[var(--border-main)] rounded-3xl p-8 shadow-sm relative overflow-hidden transition-all hover:border-emerald-500/20">
+          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-60 h-60 bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
           <div className="space-y-4 max-w-2xl">
-            <h1 className="text-4xl font-extrabold tracking-tight bg-linear-to-r from-white to-slate-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-extrabold tracking-tight text-[var(--text-main)]">
               Welcome back, {user ? user.fullName || user.username : "Coder"}!
             </h1>
-            <p className="text-slate-400 text-lg leading-relaxed">
+            <p className="text-[var(--text-muted)] text-lg leading-relaxed font-sans">
               Explore the algorithmic coding challenges, write code, run custom
               test inputs, and check your test case solutions against the judge.
             </p>
@@ -76,53 +80,53 @@ export default function Home() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-            <div className="bg-emerald-500/10 text-emerald-400 p-3 rounded-xl">
+          <div className="bg-[var(--card-bg)] border border-[var(--border-main)] p-6 rounded-2xl flex items-center gap-4 hover:border-[var(--text-muted)] transition-all shadow-sm">
+            <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 p-3 rounded-xl">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-slate-500 text-xs block uppercase font-semibold">
+              <span className="text-[var(--text-muted)] text-xs block uppercase font-bold tracking-wider">
                 Solved Problems
               </span>
-              <span className="text-2xl font-extrabold text-white">0</span>
+              <span className="text-2xl font-extrabold text-[var(--text-main)]">0</span>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-            <div className="bg-indigo-500/10 text-indigo-400 p-3 rounded-xl">
+          <div className="bg-[var(--card-bg)] border border-[var(--border-main)] p-6 rounded-2xl flex items-center gap-4 hover:border-[var(--text-muted)] transition-all shadow-sm">
+            <div className="bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 p-3 rounded-xl">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-slate-500 text-xs block uppercase font-semibold">
+              <span className="text-[var(--text-muted)] text-xs block uppercase font-bold tracking-wider">
                 Total Problems
               </span>
-              <span className="text-2xl font-extrabold text-white">
+              <span className="text-2xl font-extrabold text-[var(--text-main)]">
                 {totalProblems}
               </span>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-            <div className="bg-amber-500/10 text-amber-400 p-3 rounded-xl">
+          <div className="bg-[var(--card-bg)] border border-[var(--border-main)] p-6 rounded-2xl flex items-center gap-4 hover:border-[var(--text-muted)] transition-all shadow-sm">
+            <div className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 p-3 rounded-xl">
               <Clock className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-slate-500 text-xs block uppercase font-semibold">
+              <span className="text-[var(--text-muted)] text-xs block uppercase font-bold tracking-wider">
                 Submissions
               </span>
-              <span className="text-2xl font-extrabold text-white">0</span>
+              <span className="text-2xl font-extrabold text-[var(--text-main)]">0</span>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-            <div className="bg-cyan-500/10 text-cyan-400 p-3 rounded-xl">
+          <div className="bg-[var(--card-bg)] border border-[var(--border-main)] p-6 rounded-2xl flex items-center gap-4 hover:border-[var(--text-muted)] transition-all shadow-sm">
+            <div className="bg-teal-50 dark:bg-teal-500/10 text-teal-600 p-3 rounded-xl">
               <Activity className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-slate-500 text-xs block uppercase font-semibold">
+              <span className="text-[var(--text-muted)] text-xs block uppercase font-bold tracking-wider">
                 Acceptance Rate
               </span>
-              <span className="text-2xl font-extrabold text-white">
+              <span className="text-2xl font-extrabold text-[var(--text-main)]">
                 {acceptanceRate}%
               </span>
             </div>
@@ -132,31 +136,31 @@ export default function Home() {
         {/* Problem List Section */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-extrabold tracking-tight">
+            <h2 className="text-2xl font-extrabold tracking-tight text-[var(--text-main)]">
               Available Challenges
             </h2>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+          <div className="bg-[var(--card-bg)] border border-[var(--border-main)] rounded-2xl overflow-hidden shadow-sm hover:border-emerald-500/10 transition-all">
             {loading ? (
-              <div className="flex items-center justify-center gap-3 py-16 text-slate-400">
+              <div className="flex items-center justify-center gap-3 py-16 text-[var(--text-muted)]">
                 <LoaderCircle className="w-5 h-5 animate-spin" />
                 Loading problems...
               </div>
             ) : error ? (
-              <div className="flex items-center gap-3 px-6 py-8 text-red-400">
+              <div className="flex items-center gap-3 px-6 py-8 text-red-655">
                 <AlertCircle className="w-5 h-5 shrink-0" />
                 <span>{error}</span>
               </div>
             ) : problems.length === 0 ? (
-              <div className="px-6 py-10 text-slate-400">
+              <div className="px-6 py-10 text-[var(--text-muted)]">
                 No problems are available yet.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-950 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                    <tr className="bg-[var(--input-bg)] text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider border-b border-[var(--border-main)]">
                       <th className="py-4 px-6">Problem ID</th>
                       <th className="py-4 px-6">Title</th>
                       <th className="py-4 px-6">Difficulty</th>
@@ -164,16 +168,16 @@ export default function Home() {
                       <th className="py-4 px-6">Topics</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/50">
+                  <tbody className="divide-y divide-[var(--border-main)]">
                     {problems.map((problem) => (
                       <tr
                         key={problem._id}
-                        className="hover:bg-slate-850/30 transition-colors"
+                        className="hover:bg-[var(--input-bg)] transition-colors"
                       >
-                        <td className="py-4 px-6 font-mono text-sm text-slate-500">
+                        <td className="py-4 px-6 font-mono text-sm text-[var(--text-muted)]">
                           #{problem._id.slice(-6)}
                         </td>
-                        <td className="py-4 px-6 font-bold text-white hover:text-indigo-400">
+                        <td className="py-4 px-6 font-bold text-[var(--text-main)] hover:text-emerald-600">
                           <Link
                             to={`/problems/${problem._id}`}
                             className="inline-flex items-center gap-2 group"
@@ -186,16 +190,16 @@ export default function Home() {
                           <span
                             className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
                               problem.difficulty === "Easy"
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-900/50"
+                                ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200"
                                 : problem.difficulty === "Medium"
-                                  ? "bg-amber-500/10 text-amber-400 border-amber-900/50"
-                                  : "bg-red-500/10 text-red-400 border-red-900/50"
+                                  ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200"
+                                  : "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200"
                             }`}
                           >
                             {problem.difficulty}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-slate-300 text-sm font-medium">
+                        <td className="py-4 px-6 text-[var(--text-muted)] text-sm font-medium">
                           --
                         </td>
                         <td className="py-4 px-6">
@@ -204,13 +208,13 @@ export default function Home() {
                               problem.tags.map((tag, i) => (
                                 <span
                                   key={i}
-                                  className="text-slate-500 text-[10px] uppercase font-bold tracking-wider bg-slate-950 px-2 py-0.5 rounded border border-slate-800"
+                                  className="text-[var(--text-muted)] text-[10px] uppercase font-bold tracking-wider bg-[var(--input-bg)] px-2 py-0.5 rounded border border-[var(--border-main)]"
                                 >
                                   {tag}
                                 </span>
                               ))
                             ) : (
-                              <span className="text-slate-600 text-xs">
+                              <span className="text-[var(--text-muted)] text-xs">
                                 No tags
                               </span>
                             )}
