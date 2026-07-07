@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+  font-size: 18px;
+}
+
 :root {
   --app-bg: #f8fafc;
   --card-bg: #ffffff;

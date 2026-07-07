@@ -61,12 +61,16 @@ const runSubmission = async ({ submission, problem }) => {
           verdict: "Compilation Error",
           executionTime: Math.ceil(compileResult.runtimeMs),
           memoryUsed: 0,
+          testcasesPassed: 0,
+          totalTestcases: testCases.length,
           error: (compileResult.stderr || compileResult.stdout).slice(0, 4000),
         };
       }
     }
 
     let maxExecutionTime = 0;
+    let testcasesPassed = 0;
+    const totalTestcases = testCases.length;
 
     for (const testCase of testCases) {
       const runResult = await runDockerContainer({
@@ -79,14 +83,17 @@ const runSubmission = async ({ submission, problem }) => {
         timeLimitMs,
       });
 
-      const executionTime = Math.ceil(runResult.runtimeMs);
+      const rawTime = Math.ceil(runResult.runtimeMs);
+      const executionTime = Math.max(0, rawTime - 350);
       maxExecutionTime = Math.max(maxExecutionTime, executionTime);
 
-      if (runResult.timedOut || executionTime > timeLimitMs) {
+      if (runResult.timedOut || rawTime > timeLimitMs) {
         return {
           verdict: "Time Limit Exceeded",
           executionTime: maxExecutionTime,
           memoryUsed: 0,
+          testcasesPassed,
+          totalTestcases,
           error: "Execution timed out",
         };
       }
@@ -97,6 +104,8 @@ const runSubmission = async ({ submission, problem }) => {
           verdict: "Runtime Error",
           executionTime: maxExecutionTime,
           memoryUsed: isOOM ? memoryLimitMb : 0,
+          testcasesPassed,
+          totalTestcases,
           error: isOOM 
             ? `Runtime Error: Memory Limit Exceeded (${memoryLimitMb}MB)` 
             : runResult.stderr.slice(0, 4000),
@@ -111,15 +120,21 @@ const runSubmission = async ({ submission, problem }) => {
           verdict: "Wrong Answer",
           executionTime: maxExecutionTime,
           memoryUsed: 0,
+          testcasesPassed,
+          totalTestcases,
           error: "",
         };
       }
+      
+      testcasesPassed++;
     }
 
     return {
       verdict: "Accepted",
       executionTime: maxExecutionTime,
       memoryUsed: 0,
+      testcasesPassed,
+      totalTestcases,
       error: "",
     };
   } finally {

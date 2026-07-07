@@ -45,9 +45,9 @@ export default function Landing() {
         {/* Hero Headline */}
         <div className="space-y-4 animate-fade-in">
           <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight leading-tight select-none text-slate-900">
-            Master coding. <br className="sm:hidden" />
+            Practice Coding. <br className="sm:hidden" />
             <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-              Compete worldwide.
+              Become a Master.
             </span>
           </h1>
           <div className="max-w-2xl mx-auto space-y-3">

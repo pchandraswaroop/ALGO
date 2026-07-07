@@ -11,7 +11,7 @@ const { runSubmission } = require("./services/judgeRunner");
 dotenv.config();
 
 const workerEnabled = process.env.JUDGE_WORKER_ENABLED !== "false";
-const workerPrefetch = Number(process.env.JUDGE_WORKER_PREFETCH || 1);
+const workerPrefetch = Number(process.env.JUDGE_WORKER_PREFETCH || 3);
 
 const parseMessage = (message) => {
   try {
@@ -62,6 +62,8 @@ const processJudgeMessage = async (payload) => {
     verdict: result.verdict,
     executionTime: result.executionTime,
     memoryUsed: result.memoryUsed,
+    testcasesPassed: result.testcasesPassed,
+    totalTestcases: result.totalTestcases,
   });
 
   await JudgeJob.findByIdAndUpdate(judgeJob._id, {

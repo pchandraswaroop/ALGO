@@ -21,6 +21,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import { Panel, Group, Separator } from "react-resizable-panels";
 
 const TEMPLATES = {
   javascript: `// Write your solution here\nfunction solve() {\n    \n}\nsolve();\n`,
@@ -47,8 +48,11 @@ export default function Problem() {
   const [activeTab, setActiveTab] = useState("description");
   const [consoleTab, setConsoleTab] = useState("testcase");
   const [activeCase, setActiveCase] = useState("case1");
-  const [fontSize, setFontSize] = useState(14);
+  const [fontSize, setFontSize] = useState(16);
   const [bookmarked, setBookmarked] = useState(false);
+  const [expandedSubmission, setExpandedSubmission] = useState(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [latestSubmission, setLatestSubmission] = useState(null);
 
   // Watch document class changes to dynamically adapt Editor theme
   const [workspaceTheme, setWorkspaceTheme] = useState(() => {
@@ -109,11 +113,19 @@ export default function Problem() {
 
       if (res.submission.verdict !== "Pending") {
         setSubmissionMessage(`Verdict: ${res.submission.verdict}`);
+        setCustomRunOutput(
+          `Final Verdict: ${res.submission.verdict}\nExecution Time: ${res.submission.executionTime}ms\nMemory: ${res.submission.memoryUsed}KB`
+        );
+        
+        setLatestSubmission(res.submission);
+        setShowResultModal(true);
+        
         return;
       }
     }
 
     setSubmissionMessage("Submission is still Pending. Check again shortly.");
+    setCustomRunOutput("Polling timeout reached. Please check the Submissions tab for the final verdict.");
   };
 
   useEffect(() => {
@@ -156,6 +168,7 @@ export default function Problem() {
     setSubmissionMessage("");
     setSubmitting(true);
     setConsoleTab("output");
+    setActiveTab("submissions");
     setCustomRunOutput("Queueing submission... Waiting for verdict...");
 
     try {
@@ -316,10 +329,12 @@ export default function Problem() {
       </header>
 
       {/* Main Split Columns Workspace */}
-      <div className="flex-1 flex overflow-hidden divide-x divide-[var(--border-main)]">
-        
-        {/* Left Side Pane: Description & Details */}
-        <div className="w-[45%] flex flex-col overflow-hidden bg-[var(--sidebar-bg)]">
+      <div className="flex-1 flex overflow-hidden">
+        <Group orientation="horizontal">
+          
+          {/* Left Side Pane: Description & Details */}
+          <Panel defaultSize={45} minSize={25} id="left-pane" order={1}>
+            <div className="h-full flex flex-col overflow-hidden bg-[var(--sidebar-bg)] border-r border-[var(--border-main)]">
           {/* Tab Selector */}
           <div className="flex items-center gap-1 bg-[var(--input-bg)] px-2 py-1.5 border-b border-[var(--border-main)] shrink-0">
             {["description", "hints", "submissions"].map((tab) => (
@@ -357,7 +372,7 @@ export default function Problem() {
                 </div>
 
                 {/* Problem Statement Body */}
-                <div className="space-y-3 font-sans text-sm leading-relaxed text-[var(--text-main)] opacity-90">
+                <div className="space-y-3 font-sans text-base leading-relaxed text-[var(--text-main)] opacity-90">
                   <p className="whitespace-pre-wrap">{problem.statement}</p>
                 </div>
 
@@ -371,7 +386,7 @@ export default function Problem() {
                       <span className="block text-[10px] uppercase font-extrabold tracking-wider text-[var(--text-muted)]">
                         Example 1
                       </span>
-                      <div className="space-y-1 text-xs font-mono">
+                      <div className="space-y-1 text-sm font-mono">
                         <div>
                           <span className="text-[var(--text-muted)]">Input:</span>{" "}
                           <span className="text-[var(--text-main)]">{problem.sampleInput || "N/A"}</span>
@@ -400,7 +415,7 @@ export default function Problem() {
             {activeTab === "hints" && (
               <div className="space-y-4">
                 <h3 className="text-sm font-bold text-[var(--text-main)] uppercase tracking-wider">Solution Hints</h3>
-                <div className="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--border-main)] text-xs text-[var(--text-main)] leading-relaxed font-sans">
+                <div className="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed font-sans">
                   {problem.hints || "Use an efficient hash map to match items in O(N) runtime speed."}
                 </div>
               </div>
@@ -434,8 +449,24 @@ export default function Problem() {
                         </div>
                         <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)] font-mono">
                           <span>{new Date(sub.submittedAt).toLocaleString()}</span>
-                          <span>Time: {sub.executionTime || 0} ms</span>
+                          <div className="flex items-center gap-3">
+                            <span>Time: {sub.executionTime || 0} ms</span>
+                            <button 
+                              onClick={() => setExpandedSubmission(expandedSubmission === sub._id ? null : sub._id)}
+                              className="text-[var(--text-main)] hover:text-emerald-500 transition-colors font-bold flex items-center gap-1"
+                            >
+                              <code className="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">&lt;/&gt; View Code</code>
+                            </button>
+                          </div>
                         </div>
+                        
+                        {expandedSubmission === sub._id && (
+                          <div className="mt-3 pt-3 border-t border-[var(--border-main)]">
+                            <pre className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-main)] overflow-x-auto text-[10px] text-[var(--text-main)] font-mono leading-relaxed">
+                              {sub.code}
+                            </pre>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -444,12 +475,20 @@ export default function Problem() {
             )}
           </div>
         </div>
+      </Panel>
 
-        {/* Right Side Pane: Code Editor & Test Console */}
-        <div className="w-[55%] flex flex-col overflow-hidden bg-[var(--app-bg)]">
-          
-          {/* Top Panel: Monaco Editor Workspace */}
-          <div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-[var(--card-bg)]">
+          <Separator className="w-1.5 bg-[var(--border-main)] hover:bg-emerald-500/50 transition-colors cursor-col-resize active:bg-emerald-500 z-50 flex items-center justify-center">
+            <div className="w-0.5 h-8 bg-slate-300 dark:bg-slate-600 rounded-full" />
+          </Separator>
+
+          {/* Right Side Pane: Code Editor & Test Console */}
+          <Panel defaultSize={55} minSize={30} id="right-pane" order={2}>
+            <div className="h-full w-full flex flex-col">
+              <Group orientation="vertical">
+              
+              {/* Top Panel: Monaco Editor Workspace */}
+              <Panel defaultSize={70} minSize={20} id="top-pane" order={1}>
+                <div className="h-full flex flex-col overflow-hidden min-h-0 bg-[var(--card-bg)]">
             
             {/* Editor control header */}
             <div className="h-11 px-4 bg-[var(--input-bg)] border-b border-[var(--border-main)] flex items-center justify-between shrink-0">
@@ -512,9 +551,15 @@ export default function Problem() {
               />
             </div>
           </div>
+        </Panel>
 
-          {/* Bottom Panel: Interactive Test Console */}
-          <div className="h-64 border-t border-[var(--border-main)] bg-[var(--app-bg)] flex flex-col overflow-hidden shrink-0">
+              <Separator className="h-1.5 bg-[var(--border-main)] hover:bg-emerald-500/50 transition-colors cursor-row-resize active:bg-emerald-500 z-50 flex items-center justify-center">
+                <div className="w-8 h-0.5 bg-slate-300 dark:bg-slate-600 rounded-full" />
+              </Separator>
+
+              {/* Bottom Panel: Interactive Test Console */}
+              <Panel defaultSize={30} minSize={10} id="bottom-pane" order={2}>
+                <div className="h-full border-t border-[var(--border-main)] bg-[var(--app-bg)] flex flex-col overflow-hidden shrink-0">
             {/* Console Control Tabs */}
             <div className="h-10 bg-[var(--input-bg)] border-b border-[var(--border-main)] px-4 flex items-center justify-between shrink-0">
               <div className="flex gap-2">
@@ -580,11 +625,67 @@ export default function Problem() {
                 </div>
               )}
             </div>
-          </div>
+                </div>
+              </Panel>
 
-        </div>
+              </Group>
+            </div>
+          </Panel>
 
+        </Group>
       </div>
+
+      {/* Submission Result Modal */}
+      {showResultModal && latestSubmission && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--border-main)] rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-main)]">
+              <div className="flex items-center gap-2">
+                {latestSubmission.verdict === "Accepted" ? (
+                  <span className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 px-2.5 py-1 rounded-full text-xs font-bold">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Accepted
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 px-2.5 py-1 rounded-full text-xs font-bold">
+                    <XCircle className="w-3.5 h-3.5" />
+                    {latestSubmission.verdict}
+                  </span>
+                )}
+                <span className="font-bold text-sm text-[var(--text-main)] ml-1">Submission Result</span>
+              </div>
+              <button 
+                onClick={() => setShowResultModal(false)}
+                className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors p-1"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 bg-[var(--input-bg)]">
+              <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-main)] p-4 space-y-3 font-mono text-sm text-[var(--text-main)] shadow-sm">
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-muted)]">Verdict:</span>
+                  <span className="font-bold">{latestSubmission.verdict}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-muted)]">Passed:</span>
+                  <span className="font-bold">{latestSubmission.testcasesPassed || 0} / {latestSubmission.totalTestcases || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-muted)]">Runtime:</span>
+                  <span className="font-bold">{latestSubmission.executionTime} ms</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-muted)]">Memory:</span>
+                  <span className="font-bold">{latestSubmission.memoryUsed} MB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

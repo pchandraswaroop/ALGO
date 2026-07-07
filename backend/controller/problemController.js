@@ -6,13 +6,45 @@ const getProblems = async (req, res, next) => {
   try {
     const problems = await Problem.find({})
       .select("title difficulty tags timeLimit memoryLimit createdAt")
+      .lean()
       .sort({ createdAt: -1 });
+
+    const stats = await Submission.aggregate([
+      {
+        $group: {
+          _id: "$problemId",
+          total: { $sum: 1 },
+          accepted: {
+            $sum: { $cond: [{ $eq: ["$verdict", "Accepted"] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    const statsMap = {};
+    stats.forEach(s => {
+      if (s._id) {
+        statsMap[s._id.toString()] = {
+          total: s.total,
+          accepted: s.accepted
+        };
+      }
+    });
+
+    const problemsWithStats = problems.map(p => {
+      const s = statsMap[p._id.toString()] || { total: 0, accepted: 0 };
+      const acceptanceRate = s.total > 0 ? Math.round((s.accepted / s.total) * 100) : 0;
+      return {
+        ...p,
+        acceptanceRate,
+      };
+    });
 
     return res.status(200).json({
       success: true,
       message: "Problems retrieved successfully",
-      count: problems.length,
-      problems,
+      count: problemsWithStats.length,
+      problems: problemsWithStats,
     });
   } catch (error) {
     next(error);

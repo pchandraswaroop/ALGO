@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import { getProblems } from "../api";
+import { getProblems, getUserSubmissions } from "../api";
 import {
   Award,
   BookOpen,
@@ -15,46 +15,49 @@ import {
 export default function Home() {
   const { user } = useAuth();
   const [problems, setProblems] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const loadProblems = async () => {
+    const loadData = async () => {
       try {
-        const res = await getProblems();
-        if (res.success) {
-          setProblems(res.problems || []);
+        const [probRes, subRes] = await Promise.all([
+          getProblems(),
+          user ? getUserSubmissions() : Promise.resolve({ success: true, submissions: [] })
+        ]);
+        
+        if (probRes.success) {
+          setProblems(probRes.problems || []);
         } else {
-          setError(res.message || "Failed to load problems");
+          setError(probRes.message || "Failed to load problems");
+        }
+
+        if (subRes && subRes.success) {
+          setSubmissions(subRes.submissions || []);
         }
       } catch (err) {
-        setError(err.message || "Failed to load problems");
+        setError(err.message || "Failed to load data");
       } finally {
         setLoading(false);
       }
     };
 
-    loadProblems();
-  }, []);
+    loadData();
+  }, [user]);
 
   const totalProblems = problems.length;
-  const difficultyCount = problems.reduce(
-    (accumulator, problem) => {
-      accumulator[problem.difficulty] =
-        (accumulator[problem.difficulty] || 0) + 1;
-      return accumulator;
-    },
-    { Easy: 0, Medium: 0, Hard: 0 }
+  const submissionsCount = submissions.length;
+  
+  const solvedProblemIds = new Set(
+    submissions
+      .filter((s) => s.verdict === "Accepted" && s.problemId)
+      .map((s) => s.problemId._id || s.problemId)
   );
-
-  const acceptanceRate = totalProblems
-    ? Math.round(
-        ((difficultyCount.Easy +
-          difficultyCount.Medium * 0.7 +
-          difficultyCount.Hard * 0.4) /
-          (totalProblems * 1.5)) *
-          100
-      )
+  const solvedCount = solvedProblemIds.size;
+  
+  const acceptanceRate = submissionsCount > 0 
+    ? Math.round((submissions.filter((s) => s.verdict === "Accepted").length / submissionsCount) * 100)
     : 0;
 
   return (
@@ -88,7 +91,7 @@ export default function Home() {
               <span className="text-[var(--text-muted)] text-xs block uppercase font-bold tracking-wider">
                 Solved Problems
               </span>
-              <span className="text-2xl font-extrabold text-[var(--text-main)]">0</span>
+              <span className="text-2xl font-extrabold text-[var(--text-main)]">{solvedCount}</span>
             </div>
           </div>
 
@@ -114,7 +117,7 @@ export default function Home() {
               <span className="text-[var(--text-muted)] text-xs block uppercase font-bold tracking-wider">
                 Submissions
               </span>
-              <span className="text-2xl font-extrabold text-[var(--text-main)]">0</span>
+              <span className="text-2xl font-extrabold text-[var(--text-main)]">{submissionsCount}</span>
             </div>
           </div>
 
@@ -200,7 +203,7 @@ export default function Home() {
                           </span>
                         </td>
                         <td className="py-4 px-6 text-[var(--text-muted)] text-sm font-medium">
-                          --
+                          {problem.acceptanceRate !== undefined ? `${problem.acceptanceRate}%` : "--"}
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-wrap gap-1">

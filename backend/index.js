@@ -28,7 +28,7 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
-const corsOrigin = process.env.FRONTEND_URL || true;
+const corsOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 
 // Request logging middleware
 app.use(logger);
